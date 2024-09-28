@@ -13,12 +13,14 @@ use std::future::IntoFuture;
 use twilight_model::{
     channel::message::{
         AllowedMentions, Component, Embed, Message, MessageFlags, MessageReference,
+        MessageReferenceType,
     },
     http::attachment::Attachment,
     id::{
         marker::{ChannelMarker, MessageMarker, StickerMarker},
         Id,
     },
+    poll::Poll,
 };
 use twilight_validate::message::{
     attachment as validate_attachment, components as validate_components,
@@ -46,6 +48,8 @@ pub(crate) struct CreateMessageFields<'a> {
     nonce: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     payload_json: Option<&'a [u8]>,
+    #[serde(skip_serializing_if = "Option::is_none")]
+    poll: Option<&'a Poll>,
     #[serde(skip_serializing_if = "Option::is_none")]
     sticker_ids: Option<&'a [Id<StickerMarker>]>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -102,6 +106,7 @@ impl<'a> CreateMessage<'a> {
                 message_reference: None,
                 nonce: None,
                 payload_json: None,
+                poll: None,
                 allowed_mentions: None,
                 sticker_ids: None,
                 tts: None,
@@ -222,6 +227,15 @@ impl<'a> CreateMessage<'a> {
         self
     }
 
+    /// Specify if this message is a poll.
+    pub fn poll(mut self, poll: &'a Poll) -> Self {
+        if let Ok(fields) = self.fields.as_mut() {
+            fields.poll = Some(poll);
+        }
+
+        self
+    }
+
     /// Whether to fail sending if the reply no longer exists.
     ///
     /// Defaults to [`true`].
@@ -231,6 +245,7 @@ impl<'a> CreateMessage<'a> {
                 reference.fail_if_not_exists = Some(fail_if_not_exists);
             } else {
                 fields.message_reference = Some(MessageReference {
+                    kind: MessageReferenceType::default(),
                     channel_id: None,
                     guild_id: None,
                     message_id: None,
@@ -299,6 +314,36 @@ impl<'a> CreateMessage<'a> {
                 }
             } else {
                 MessageReference {
+                    kind: MessageReferenceType::Default,
+                    channel_id: Some(channel_id),
+                    guild_id: None,
+                    message_id: Some(other),
+                    fail_if_not_exists: None,
+                }
+            };
+
+            fields.message_reference = Some(reference);
+
+            fields
+        });
+
+        self
+    }
+
+    /// Specify the ID of another message to forward.
+    pub fn forward(mut self, other: Id<MessageMarker>) -> Self {
+        self.fields = self.fields.map(|mut fields| {
+            let channel_id = self.channel_id;
+
+            let reference = if let Some(reference) = fields.message_reference {
+                MessageReference {
+                    channel_id: Some(channel_id),
+                    message_id: Some(other),
+                    ..reference
+                }
+            } else {
+                MessageReference {
+                    kind: MessageReferenceType::Forward,
                     channel_id: Some(channel_id),
                     guild_id: None,
                     message_id: Some(other),

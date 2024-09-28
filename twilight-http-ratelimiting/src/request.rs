@@ -121,6 +121,10 @@ pub enum Path {
     ApplicationCommand(u64),
     /// Operating on a specific command.
     ApplicationCommandId(u64),
+    /// Operating on application emojis.
+    ApplicationEmojis(u64),
+    /// Operating on a specific application emoji.
+    ApplicationEmoji(u64),
     /// Operating on commands in a guild.
     ApplicationGuildCommand(u64),
     /// Operating on a specific command in a guild.
@@ -154,6 +158,8 @@ pub enum Path {
     ChannelsIdPins(u64),
     /// Operating on a channel's individual pinned message.
     ChannelsIdPinsMessageId(u64),
+    /// Operating on a channel's polls.
+    ChannelsIdPolls(u64),
     /// Operating on a group DM's recipients.
     ChannelsIdRecipients(u64),
     /// Operating on a thread's members.
@@ -342,6 +348,7 @@ impl FromStr for Path {
             ["applications", id, "commands"] => ApplicationCommand(parse_id(id)?),
             ["applications", id, "commands", _] => ApplicationCommandId(parse_id(id)?),
             ["applications", id, "entitlements"] => ApplicationIdEntitlements(parse_id(id)?),
+            ["applications", id, "emojis"] => ApplicationEmojis(parse_id(id)?),
             ["applications", id, "guilds", _, "commands"]
             | ["applications", id, "guilds", _, "commands", "permissions"] => {
                 ApplicationGuildCommand(parse_id(id)?)

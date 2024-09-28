@@ -37,6 +37,7 @@ mod preview;
 mod prune;
 mod role;
 mod role_flags;
+mod role_position;
 mod role_tags;
 mod system_channel_flags;
 mod unavailable_guild;
@@ -54,9 +55,10 @@ pub use self::{
     integration_expire_behavior::IntegrationExpireBehavior, integration_type::GuildIntegrationType,
     member::Member, member_flags::MemberFlags, mfa_level::MfaLevel, partial_guild::PartialGuild,
     partial_member::PartialMember, premium_tier::PremiumTier, preview::GuildPreview,
-    prune::GuildPrune, role::Role, role_flags::RoleFlags, role_tags::RoleTags,
-    system_channel_flags::SystemChannelFlags, unavailable_guild::UnavailableGuild,
-    vanity_url::VanityUrl, verification_level::VerificationLevel, widget::GuildWidget,
+    prune::GuildPrune, role::Role, role_flags::RoleFlags, role_position::RolePosition,
+    role_tags::RoleTags, system_channel_flags::SystemChannelFlags,
+    unavailable_guild::UnavailableGuild, vanity_url::VanityUrl,
+    verification_level::VerificationLevel, widget::GuildWidget,
 };
 
 use super::gateway::presence::PresenceListDeserializer;
@@ -95,6 +97,9 @@ pub struct Guild {
     pub explicit_content_filter: ExplicitContentFilter,
     /// Enabled guild features
     pub features: Vec<GuildFeature>,
+    /// Scheduled guild events.
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub guild_scheduled_events: Vec<scheduled_event::GuildScheduledEvent>,
     pub icon: Option<ImageHash>,
     pub id: Id<GuildMarker>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -104,6 +109,9 @@ pub struct Guild {
     pub max_members: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_presences: Option<u64>,
+    /// Maximum number of users in a stage video channel.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub max_stage_video_channel_users: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
     pub max_video_channel_users: Option<u64>,
     #[serde(skip_serializing_if = "Option::is_none")]
@@ -175,12 +183,14 @@ impl<'de> Deserialize<'de> for Guild {
             Emojis,
             ExplicitContentFilter,
             Features,
+            GuildScheduledEvents,
             Icon,
             Id,
             JoinedAt,
             Large,
             MaxMembers,
             MaxPresences,
+            MaxStageVideoChannelUsers,
             MaxVideoChannelUsers,
             MemberCount,
             Members,
@@ -237,12 +247,14 @@ impl<'de> Deserialize<'de> for Guild {
                 let mut emojis = None;
                 let mut explicit_content_filter = None;
                 let mut features = None;
+                let mut guild_scheduled_events = None;
                 let mut icon = None::<Option<_>>;
                 let mut id = None;
                 let mut joined_at = None::<Option<_>>;
                 let mut large = None;
                 let mut max_members = None::<Option<_>>;
                 let mut max_presences = None::<Option<_>>;
+                let mut max_stage_video_channel_users = None::<Option<_>>;
                 let mut max_video_channel_users = None::<Option<_>>;
                 let mut member_count = None::<Option<_>>;
                 let mut members = None;
@@ -259,18 +271,18 @@ impl<'de> Deserialize<'de> for Guild {
                 let mut presences = None;
                 let mut public_updates_channel_id = None::<Option<_>>;
                 let mut roles = None;
+                let mut rules_channel_id = None::<Option<_>>;
                 let mut safety_alerts_channel_id = None::<Option<_>>;
                 let mut splash = None::<Option<_>>;
                 let mut stage_instances = None::<Vec<StageInstance>>;
                 let mut stickers = None::<Vec<Sticker>>;
-                let mut system_channel_id = None::<Option<_>>;
                 let mut system_channel_flags = None;
+                let mut system_channel_id = None::<Option<_>>;
                 let mut threads = None::<Vec<Channel>>;
-                let mut rules_channel_id = None::<Option<_>>;
                 let mut unavailable = None;
+                let mut vanity_url_code = None::<Option<_>>;
                 let mut verification_level = None;
                 let mut voice_states = None::<Vec<VoiceState>>;
-                let mut vanity_url_code = None::<Option<_>>;
                 let mut widget_channel_id = None::<Option<_>>;
                 let mut widget_enabled = None::<Option<_>>;
 
@@ -379,6 +391,13 @@ impl<'de> Deserialize<'de> for Guild {
 
                             features = Some(map.next_value()?);
                         }
+                        Field::GuildScheduledEvents => {
+                            if guild_scheduled_events.is_some() {
+                                return Err(DeError::duplicate_field("guild_scheduled_events"));
+                            }
+
+                            guild_scheduled_events = Some(map.next_value()?);
+                        }
                         Field::Icon => {
                             if icon.is_some() {
                                 return Err(DeError::duplicate_field("icon"));
@@ -420,6 +439,15 @@ impl<'de> Deserialize<'de> for Guild {
                             }
 
                             max_presences = Some(map.next_value()?);
+                        }
+                        Field::MaxStageVideoChannelUsers => {
+                            if max_stage_video_channel_users.is_some() {
+                                return Err(DeError::duplicate_field(
+                                    "max_stage_video_channel_users",
+                                ));
+                            }
+
+                            max_stage_video_channel_users = Some(map.next_value()?);
                         }
                         Field::MaxVideoChannelUsers => {
                             if max_video_channel_users.is_some() {
@@ -668,11 +696,14 @@ impl<'de> Deserialize<'de> for Guild {
                 let description = description.unwrap_or_default();
                 let discovery_splash = discovery_splash.unwrap_or_default();
                 let emojis = emojis.unwrap_or_default();
+                let guild_scheduled_events = guild_scheduled_events.unwrap_or_default();
                 let icon = icon.unwrap_or_default();
                 let large = large.unwrap_or_default();
                 let joined_at = joined_at.unwrap_or_default();
                 let max_members = max_members.unwrap_or_default();
                 let max_presences = max_presences.unwrap_or_default();
+                let max_stage_video_channel_users =
+                    max_stage_video_channel_users.unwrap_or_default();
                 let max_video_channel_users = max_video_channel_users.unwrap_or_default();
                 let member_count = member_count.unwrap_or_default();
                 let members = members.unwrap_or_default();
@@ -726,12 +757,14 @@ impl<'de> Deserialize<'de> for Guild {
                     emojis,
                     explicit_content_filter,
                     features,
+                    guild_scheduled_events,
                     icon,
                     id,
                     joined_at,
                     large,
                     max_members,
                     max_presences,
+                    max_stage_video_channel_users,
                     max_video_channel_users,
                     member_count,
                     members,
@@ -852,12 +885,14 @@ mod tests {
             emojis: Vec::new(),
             explicit_content_filter: ExplicitContentFilter::MembersWithoutRole,
             features: Vec::from([GuildFeature::Banner]),
+            guild_scheduled_events: Vec::new(),
             icon: Some(image_hash::ICON),
             id: Id::new(1),
             joined_at,
             large: true,
             max_members: Some(25_000),
             max_presences: Some(10_000),
+            max_stage_video_channel_users: Some(10),
             max_video_channel_users: Some(10),
             member_count: Some(12_000),
             members: Vec::new(),
@@ -895,7 +930,7 @@ mod tests {
             &[
                 Token::Struct {
                     name: "Guild",
-                    len: 47,
+                    len: 48,
                 },
                 Token::Str("afk_channel_id"),
                 Token::Some,
@@ -954,6 +989,9 @@ mod tests {
                 Token::Str("max_presences"),
                 Token::Some,
                 Token::U64(10_000),
+                Token::Str("max_stage_video_channel_users"),
+                Token::Some,
+                Token::U64(10),
                 Token::Str("max_video_channel_users"),
                 Token::Some,
                 Token::U64(10),

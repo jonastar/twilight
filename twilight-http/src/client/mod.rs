@@ -4,9 +4,14 @@ mod interaction;
 
 pub use self::{builder::ClientBuilder, interaction::InteractionClient};
 
-use crate::request::application::monetization::{
-    CreateTestEntitlement, CreateTestEntitlementOwner, DeleteTestEntitlement, GetEntitlements,
-    GetSKUs,
+use crate::request::application::{
+    emoji::{
+        AddApplicationEmoji, DeleteApplicationEmoji, ListApplicationEmojis, UpdateApplicationEmoji,
+    },
+    monetization::{
+        CreateTestEntitlement, CreateTestEntitlementOwner, DeleteTestEntitlement, GetEntitlements,
+        GetSKUs,
+    },
 };
 #[allow(deprecated)]
 use crate::{
@@ -66,6 +71,7 @@ use crate::{
             UpdateCurrentMember, UpdateGuild, UpdateGuildChannelPositions, UpdateGuildMfa,
             UpdateGuildWelcomeScreen, UpdateGuildWidgetSettings,
         },
+        poll::{EndPoll, GetAnswerVoters},
         scheduled_event::{
             CreateGuildScheduledEvent, DeleteGuildScheduledEvent, GetGuildScheduledEvent,
             GetGuildScheduledEventUsers, GetGuildScheduledEvents, UpdateGuildScheduledEvent,
@@ -105,7 +111,10 @@ use tokio::time;
 use twilight_http_ratelimiting::Ratelimiter;
 use twilight_model::{
     channel::{message::AllowedMentions, ChannelType},
-    guild::{auto_moderation::AutoModerationEventType, scheduled_event::PrivacyLevel, MfaLevel},
+    guild::{
+        auto_moderation::AutoModerationEventType, scheduled_event::PrivacyLevel, MfaLevel,
+        RolePosition,
+    },
     http::{channel_position::Position, permission_overwrite::PermissionOverwrite},
     id::{
         marker::{
@@ -1708,7 +1717,7 @@ impl Client {
     pub const fn update_role_positions<'a>(
         &'a self,
         guild_id: Id<GuildMarker>,
-        roles: &'a [(Id<RoleMarker>, u64)],
+        roles: &'a [RolePosition],
     ) -> UpdateRolePositions<'a> {
         UpdateRolePositions::new(self, guild_id, roles)
     }
@@ -1869,7 +1878,7 @@ impl Client {
         &'a self,
         channel_id: Id<ChannelMarker>,
         name: &'a str,
-    ) -> CreateForumThread<'_> {
+    ) -> CreateForumThread<'a> {
         CreateForumThread::new(self, channel_id, name)
     }
 
@@ -1896,7 +1905,7 @@ impl Client {
         channel_id: Id<ChannelMarker>,
         name: &'a str,
         kind: ChannelType,
-    ) -> CreateThread<'_> {
+    ) -> CreateThread<'a> {
         CreateThread::new(self, channel_id, name, kind)
     }
 
@@ -1932,7 +1941,7 @@ impl Client {
         channel_id: Id<ChannelMarker>,
         message_id: Id<MessageMarker>,
         name: &'a str,
-    ) -> CreateThreadFromMessage<'_> {
+    ) -> CreateThreadFromMessage<'a> {
         CreateThreadFromMessage::new(self, channel_id, message_id, name)
     }
 
@@ -2523,7 +2532,7 @@ impl Client {
         description: &'a str,
         tags: &'a str,
         file: &'a [u8],
-    ) -> CreateGuildSticker<'_> {
+    ) -> CreateGuildSticker<'a> {
         CreateGuildSticker::new(self, guild_id, name, description, tags, file)
     }
 
@@ -2618,6 +2627,32 @@ impl Client {
         CreateTestEntitlement::new(self, application_id, sku_id, owner)
     }
 
+    /// Ends a poll in a channel.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use twilight_http::Client;
+    /// use twilight_model::id::Id;
+    ///
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let client = Client::new("my token".to_owned());
+    ///
+    /// let channel_id = Id::new(1);
+    /// let message_id = Id::new(2);
+    ///
+    /// client.end_poll(channel_id, message_id).await?;
+    /// # Ok(()) }
+    /// ```
+    pub const fn end_poll(
+        &self,
+        channel_id: Id<ChannelMarker>,
+        message_id: Id<MessageMarker>,
+    ) -> EndPoll<'_> {
+        EndPoll::new(self, channel_id, message_id)
+    }
+
     /// Deletes a currently-active test entitlement. Discord will act as though that user or
     /// guild no longer has entitlement to your premium offering.
     ///
@@ -2648,6 +2683,35 @@ impl Client {
         DeleteTestEntitlement::new(self, application_id, entitlement_id)
     }
 
+    /// /// Get the voters for an answer in a poll.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use twilight_http::Client;
+    /// use twilight_model::id::Id;
+    ///
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let client = Client::new("my token".to_owned());
+    ///
+    /// let channel_id = Id::new(1);
+    /// let message_id = Id::new(2);
+    /// let answer_id = 1;
+    ///
+    /// let voters = client.get_answer_voters(channel_id, message_id, answer_id).await?;
+    ///
+    /// println!("{:?}", voters);
+    /// # Ok(()) }
+    pub const fn get_answer_voters(
+        &self,
+        channel_id: Id<ChannelMarker>,
+        message_id: Id<MessageMarker>,
+        answer_id: u8,
+    ) -> GetAnswerVoters<'_> {
+        GetAnswerVoters::new(self, channel_id, message_id, answer_id)
+    }
+
     /// Returns all SKUs for a given application.
     ///
     /// # Examples
@@ -2667,6 +2731,119 @@ impl Client {
     /// # Ok(()) }
     pub const fn get_skus(&self, application_id: Id<ApplicationMarker>) -> GetSKUs<'_> {
         GetSKUs::new(self, application_id)
+    }
+
+    /// Gets all emojis associated with an application
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use twilight_http::Client;
+    /// use twilight_model::id::Id;
+    ///
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let client = Client::new("my token".to_owned());
+    ///
+    /// let application_id = Id::new(1);
+    ///
+    /// let emojis = client.get_application_emojis(application_id).await?;
+    ///
+    /// # Ok(()) }
+    /// ```
+    pub const fn get_application_emojis(
+        &self,
+        application_id: Id<ApplicationMarker>,
+    ) -> ListApplicationEmojis<'_> {
+        ListApplicationEmojis::new(self, application_id)
+    }
+
+    /// Adds an emoji to an application
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use twilight_http::Client;
+    /// use twilight_model::id::Id;
+    ///
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let client = Client::new("my token".to_owned());
+    ///
+    /// let application_id = Id::new(1);
+    ///
+    /// client
+    ///     .add_application_emoji(application_id, "emoji name", "emoji image")
+    ///     .await?;
+    ///
+    /// # Ok(()) }
+    /// ```
+    pub const fn add_application_emoji<'a>(
+        &'a self,
+        application_id: Id<ApplicationMarker>,
+        name: &'a str,
+        image: &'a str,
+    ) -> AddApplicationEmoji<'a> {
+        AddApplicationEmoji::new(self, application_id, name, image)
+    }
+
+    /// Updates an emoji associated with an application.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use twilight_http::Client;
+    /// use twilight_model::id::Id;
+    ///
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let client = Client::new("my token".to_owned());
+    ///
+    /// let application_id = Id::new(1);
+    /// let emoji_id = Id::new(2);
+    ///
+    /// client
+    ///     .update_application_emoji(application_id, emoji_id, "new emoji name")
+    ///     .await?;
+    ///
+    /// # Ok(()) }
+    /// ```
+    pub const fn update_application_emoji<'a>(
+        &'a self,
+        application_id: Id<ApplicationMarker>,
+        emoji_id: Id<EmojiMarker>,
+        name: &'a str,
+    ) -> UpdateApplicationEmoji<'a> {
+        UpdateApplicationEmoji::new(self, application_id, emoji_id, name)
+    }
+
+    /// Deletes an emoji associated with an application.
+    ///
+    /// # Examples
+    ///
+    /// ```no_run
+    /// use twilight_http::Client;
+    /// use twilight_model::id::Id;
+    ///
+    /// # #[tokio::main]
+    /// # async fn main() -> Result<(), Box<dyn std::error::Error>> {
+    /// let client = Client::new("my token".to_owned());
+    ///
+    /// let application_id = Id::new(1);
+    /// let emoji_id = Id::new(2);
+    ///
+    /// client
+    ///     .delete_application_emoji(application_id, emoji_id)
+    ///     .await?;
+    ///
+    /// # Ok(()) }
+    /// ```
+    pub const fn delete_application_emoji(
+        &self,
+        application_id: Id<ApplicationMarker>,
+        emoji_id: Id<EmojiMarker>,
+    ) -> DeleteApplicationEmoji<'_> {
+        DeleteApplicationEmoji::new(self, application_id, emoji_id)
     }
 
     /// Execute a request, returning a future resolving to a [`Response`].

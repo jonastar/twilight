@@ -3,7 +3,7 @@ use twilight_model::{
     channel::{
         message::{
             sticker::{Sticker, StickerFormatType, StickerType},
-            Message, MessageFlags, MessageType, ReactionType,
+            EmojiReactionType, Message, MessageFlags, MessageType,
         },
         Channel, ChannelType,
     },
@@ -12,12 +12,16 @@ use twilight_model::{
         GatewayReaction,
     },
     guild::{
+        scheduled_event::{EntityType, GuildScheduledEvent, PrivacyLevel, Status},
         AfkTimeout, DefaultMessageNotificationLevel, Emoji, ExplicitContentFilter, Guild, Member,
         MemberFlags, MfaLevel, NSFWLevel, PartialMember, Permissions, PremiumTier, Role, RoleFlags,
         SystemChannelFlags, VerificationLevel,
     },
     id::{
-        marker::{ChannelMarker, EmojiMarker, GuildMarker, RoleMarker, StickerMarker, UserMarker},
+        marker::{
+            ChannelMarker, EmojiMarker, GuildMarker, RoleMarker, ScheduledEventMarker,
+            StickerMarker, UserMarker,
+        },
         Id,
     },
     user::{CurrentUser, User},
@@ -45,6 +49,7 @@ pub fn cache_with_message_and_reactions() -> DefaultInMemoryCache {
             accent_color: None,
             avatar: Some(avatar),
             avatar_decoration: None,
+            avatar_decoration_data: None,
             banner: None,
             bot: false,
             discriminator: 1,
@@ -60,6 +65,7 @@ pub fn cache_with_message_and_reactions() -> DefaultInMemoryCache {
             system: None,
             verified: None,
         },
+        call: None,
         channel_id: Id::new(2),
         components: Vec::new(),
         content: "ping".to_owned(),
@@ -87,7 +93,9 @@ pub fn cache_with_message_and_reactions() -> DefaultInMemoryCache {
         mention_everyone: false,
         mention_roles: Vec::new(),
         mentions: Vec::new(),
+        message_snapshots: Vec::new(),
         pinned: false,
+        poll: None,
         reactions: Vec::new(),
         reference: None,
         role_subscription_data: None,
@@ -102,8 +110,10 @@ pub fn cache_with_message_and_reactions() -> DefaultInMemoryCache {
     cache.update(&MessageCreate(msg));
 
     let mut reaction = ReactionAdd(GatewayReaction {
+        burst: false,
+        burst_colors: Vec::new(),
         channel_id: Id::new(2),
-        emoji: ReactionType::Unicode {
+        emoji: EmojiReactionType::Unicode {
             name: "😀".to_owned(),
         },
         guild_id: Some(Id::new(1)),
@@ -122,6 +132,7 @@ pub fn cache_with_message_and_reactions() -> DefaultInMemoryCache {
                 accent_color: None,
                 avatar: Some(avatar),
                 avatar_decoration: None,
+                avatar_decoration_data: None,
                 banner: None,
                 bot: false,
                 discriminator: 1,
@@ -163,6 +174,7 @@ pub fn cache_with_message_and_reactions() -> DefaultInMemoryCache {
             accent_color: None,
             avatar: Some(user_5_avatar),
             avatar_decoration: None,
+            avatar_decoration_data: None,
             banner: None,
             bot: false,
             discriminator: 2,
@@ -183,13 +195,13 @@ pub fn cache_with_message_and_reactions() -> DefaultInMemoryCache {
 
     cache.update(&reaction);
 
-    reaction.emoji = ReactionType::Unicode {
+    reaction.emoji = EmojiReactionType::Unicode {
         name: "🗺️".to_owned(),
     };
 
     cache.update(&reaction);
 
-    reaction.emoji = ReactionType::Custom {
+    reaction.emoji = EmojiReactionType::Custom {
         animated: true,
         id: Id::new(6),
         name: Some("custom".to_owned()),
@@ -358,6 +370,7 @@ pub fn user(id: Id<UserMarker>) -> User {
         accent_color: None,
         avatar: None,
         avatar_decoration: None,
+        avatar_decoration_data: None,
         banner: Some(banner),
         bot: false,
         discriminator: 1,
@@ -390,12 +403,14 @@ pub fn guild(id: Id<GuildMarker>, member_count: Option<u64>) -> Guild {
         emojis: Vec::new(),
         explicit_content_filter: ExplicitContentFilter::None,
         features: Vec::new(),
+        guild_scheduled_events: Vec::new(),
         icon: None,
         id,
         joined_at: None,
         large: false,
         max_members: None,
         max_presences: None,
+        max_stage_video_channel_users: None,
         max_video_channel_users: None,
         member_count,
         members: Vec::new(),
@@ -426,5 +441,30 @@ pub fn guild(id: Id<GuildMarker>, member_count: Option<u64>) -> Guild {
         voice_states: Vec::new(),
         widget_channel_id: None,
         widget_enabled: None,
+    }
+}
+
+pub fn guild_scheduled_event(
+    id: Id<ScheduledEventMarker>,
+    guild_id: Id<GuildMarker>,
+    user_count: Option<u64>,
+) -> GuildScheduledEvent {
+    GuildScheduledEvent {
+        channel_id: None,
+        creator: None,
+        creator_id: None,
+        description: None,
+        entity_id: None,
+        entity_metadata: None,
+        entity_type: EntityType::External,
+        guild_id,
+        id,
+        image: None,
+        name: "test".to_owned(),
+        privacy_level: PrivacyLevel::GuildOnly,
+        scheduled_end_time: None,
+        scheduled_start_time: Timestamp::from_secs(789).unwrap(),
+        status: Status::Completed,
+        user_count,
     }
 }

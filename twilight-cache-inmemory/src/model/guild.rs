@@ -4,8 +4,9 @@ use serde::Serialize;
 use twilight_model::{
     gateway::payload::incoming::GuildUpdate,
     guild::{
-        AfkTimeout, DefaultMessageNotificationLevel, ExplicitContentFilter, Guild, GuildFeature,
-        MfaLevel, NSFWLevel, Permissions, PremiumTier, SystemChannelFlags, VerificationLevel,
+        scheduled_event::GuildScheduledEvent, AfkTimeout, DefaultMessageNotificationLevel,
+        ExplicitContentFilter, Guild, GuildFeature, MfaLevel, NSFWLevel, Permissions, PremiumTier,
+        SystemChannelFlags, VerificationLevel,
     },
     id::{
         marker::{ApplicationMarker, ChannelMarker, GuildMarker, UserMarker},
@@ -30,19 +31,21 @@ pub struct CachedGuild {
     pub(crate) discovery_splash: Option<ImageHash>,
     pub(crate) explicit_content_filter: ExplicitContentFilter,
     pub(crate) features: Vec<GuildFeature>,
+    pub(crate) guild_scheduled_events: Vec<GuildScheduledEvent>,
     pub(crate) icon: Option<ImageHash>,
     pub(crate) id: Id<GuildMarker>,
     pub(crate) joined_at: Option<Timestamp>,
     pub(crate) large: bool,
     pub(crate) max_members: Option<u64>,
     pub(crate) max_presences: Option<u64>,
+    pub(crate) max_stage_video_channel_users: Option<u64>,
     pub(crate) max_video_channel_users: Option<u64>,
     pub(crate) member_count: Option<u64>,
     pub(crate) mfa_level: MfaLevel,
     pub(crate) name: String,
     pub(crate) nsfw_level: NSFWLevel,
-    pub(crate) owner_id: Id<UserMarker>,
     pub(crate) owner: Option<bool>,
+    pub(crate) owner_id: Id<UserMarker>,
     pub(crate) permissions: Option<Permissions>,
     pub(crate) preferred_locale: String,
     pub(crate) premium_progress_bar_enabled: bool,
@@ -52,8 +55,8 @@ pub struct CachedGuild {
     pub(crate) rules_channel_id: Option<Id<ChannelMarker>>,
     pub(crate) safety_alerts_channel_id: Option<Id<ChannelMarker>>,
     pub(crate) splash: Option<ImageHash>,
-    pub(crate) system_channel_id: Option<Id<ChannelMarker>>,
     pub(crate) system_channel_flags: SystemChannelFlags,
+    pub(crate) system_channel_id: Option<Id<ChannelMarker>>,
     pub(crate) unavailable: bool,
     pub(crate) vanity_url_code: Option<String>,
     pub(crate) verification_level: VerificationLevel,
@@ -119,6 +122,11 @@ impl CachedGuild {
         }
     }
 
+    /// Scheduled guild events.
+    pub fn guild_scheduled_events(&self) -> &[GuildScheduledEvent] {
+        &self.guild_scheduled_events
+    }
+
     /// Icon hash.
     ///
     /// See [Discord Docs/Image Formatting].
@@ -151,6 +159,11 @@ impl CachedGuild {
     /// Maximum presences.
     pub const fn max_presences(&self) -> Option<u64> {
         self.max_presences
+    }
+
+    /// Maximum number of users in a stage video channel.
+    pub const fn max_stage_video_channel_users(&self) -> Option<u64> {
+        self.max_stage_video_channel_users
     }
 
     /// Maximum number of users in a video channel.
@@ -292,19 +305,21 @@ impl From<Guild> for CachedGuild {
             discovery_splash,
             explicit_content_filter,
             features,
+            guild_scheduled_events,
             icon,
             id,
             joined_at,
             large,
             max_members,
             max_presences,
+            max_stage_video_channel_users,
             max_video_channel_users,
             member_count,
             mfa_level,
             name,
             nsfw_level,
-            owner_id,
             owner,
+            owner_id,
             permissions,
             preferred_locale,
             premium_progress_bar_enabled,
@@ -334,19 +349,21 @@ impl From<Guild> for CachedGuild {
             discovery_splash,
             explicit_content_filter,
             features,
+            guild_scheduled_events,
             icon,
             id,
             joined_at,
             large,
             max_members,
             max_presences,
+            max_stage_video_channel_users,
             max_video_channel_users,
             member_count,
             mfa_level,
             name,
             nsfw_level,
-            owner_id,
             owner,
+            owner_id,
             permissions,
             preferred_locale,
             premium_progress_bar_enabled,
@@ -356,8 +373,8 @@ impl From<Guild> for CachedGuild {
             rules_channel_id,
             safety_alerts_channel_id,
             splash,
-            system_channel_id,
             system_channel_flags,
+            system_channel_id,
             unavailable,
             vanity_url_code,
             verification_level,

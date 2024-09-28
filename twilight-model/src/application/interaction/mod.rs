@@ -388,6 +388,8 @@ impl<'de> Visitor<'de> for InteractionVisitor {
             }
         };
 
+        let entitlements = entitlements.unwrap_or_default();
+
         Ok(Self::Value {
             app_permissions,
             application_id,
@@ -532,6 +534,7 @@ mod tests {
                             accent_color: None,
                             avatar: Some(image_hash::AVATAR),
                             avatar_decoration: None,
+                            avatar_decoration_data: None,
                             banner: None,
                             bot: false,
                             discriminator: 1111,
@@ -584,6 +587,7 @@ mod tests {
                     accent_color: None,
                     avatar: Some(image_hash::AVATAR),
                     avatar_decoration: None,
+                    avatar_decoration_data: None,
                     banner: None,
                     bot: false,
                     discriminator: 1111,
@@ -702,7 +706,7 @@ mod tests {
                 Token::Str("600"),
                 Token::Struct {
                     name: "User",
-                    len: 9,
+                    len: 10,
                 },
                 Token::Str("accent_color"),
                 Token::None,
@@ -710,6 +714,8 @@ mod tests {
                 Token::Some,
                 Token::Str(image_hash::AVATAR_INPUT),
                 Token::Str("avatar_decoration"),
+                Token::None,
+                Token::Str("avatar_decoration_data"),
                 Token::None,
                 Token::Str("banner"),
                 Token::None,
@@ -805,7 +811,7 @@ mod tests {
                 Token::Some,
                 Token::Struct {
                     name: "User",
-                    len: 9,
+                    len: 10,
                 },
                 Token::Str("accent_color"),
                 Token::None,
@@ -813,6 +819,8 @@ mod tests {
                 Token::Some,
                 Token::Str(image_hash::AVATAR_INPUT),
                 Token::Str("avatar_decoration"),
+                Token::None,
+                Token::Str("avatar_decoration_data"),
                 Token::None,
                 Token::Str("banner"),
                 Token::None,

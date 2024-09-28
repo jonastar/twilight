@@ -1190,7 +1190,7 @@ fn component_text_input_value(value: impl AsRef<str>) -> Result<(), ComponentVal
 mod tests {
     use super::*;
     use static_assertions::{assert_fields, assert_impl_all};
-    use twilight_model::channel::message::ReactionType;
+    use twilight_model::channel::message::EmojiReactionType;
 
     assert_fields!(ComponentValidationErrorType::ActionRowComponentCount: count);
     assert_fields!(ComponentValidationErrorType::ComponentCount: count);
@@ -1214,6 +1214,7 @@ mod tests {
         ButtonStyle::Success,
         ButtonStyle::Danger,
         ButtonStyle::Link,
+        ButtonStyle::Premium,
     ];
 
     #[test]
@@ -1221,12 +1222,13 @@ mod tests {
         let button = Button {
             custom_id: None,
             disabled: false,
-            emoji: Some(ReactionType::Unicode {
+            emoji: Some(EmojiReactionType::Unicode {
                 name: "📚".into()
             }),
             label: Some("Read".into()),
             style: ButtonStyle::Link,
             url: Some("https://abebooks.com".into()),
+            sku_id: None,
         };
 
         let select_menu = SelectMenu {
@@ -1285,6 +1287,7 @@ mod tests {
             label: None,
             style: ButtonStyle::Primary,
             url: Some("https://twilight.rs".to_owned()),
+            sku_id: None,
         };
 
         assert!(matches!(
@@ -1307,6 +1310,7 @@ mod tests {
                 label: Some("some label".to_owned()),
                 style: *style,
                 url: None,
+                sku_id: None,
             };
 
             assert!(matches!(

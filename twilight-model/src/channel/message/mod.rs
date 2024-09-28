@@ -8,31 +8,38 @@ pub mod sticker;
 mod activity;
 mod allowed_mentions;
 mod application;
+mod call;
 mod flags;
 mod interaction;
 mod kind;
 mod mention;
 mod reaction;
+mod reaction_type;
 mod reference;
+mod reference_type;
 mod role_subscription_data;
+mod snapshot;
 
 pub use self::{
     activity::{MessageActivity, MessageActivityType},
     allowed_mentions::{AllowedMentions, MentionType},
     application::MessageApplication,
+    call::MessageCall,
     component::Component,
     embed::Embed,
     flags::MessageFlags,
     interaction::MessageInteraction,
     kind::MessageType,
     mention::Mention,
-    reaction::{Reaction, ReactionCountDetails, ReactionType},
+    reaction::{EmojiReactionType, Reaction, ReactionCountDetails},
+    reaction_type::ReactionType,
     reference::MessageReference,
+    reference_type::MessageReferenceType,
     role_subscription_data::RoleSubscriptionData,
-    sticker::Sticker,
+    snapshot::MessageSnapshot,
+    sticker::{MessageSticker, Sticker},
 };
 
-use self::sticker::MessageSticker;
 use crate::{
     channel::{Attachment, Channel, ChannelMention},
     guild::PartialMember,
@@ -42,6 +49,7 @@ use crate::{
         },
         Id,
     },
+    poll::Poll,
     user::User,
     util::Timestamp,
 };
@@ -78,6 +86,8 @@ pub struct Message {
     pub attachments: Vec<Attachment>,
     /// Author of the message.
     pub author: User,
+    /// The call associated with the message.
+    pub call: Option<MessageCall>,
     /// ID of the [`Channel`] the message was sent in.
     pub channel_id: Id<ChannelMarker>,
     /// List of provided components, such as buttons.
@@ -157,8 +167,15 @@ pub struct Message {
     pub mention_roles: Vec<Id<RoleMarker>>,
     /// Users mentioned in the message.
     pub mentions: Vec<Mention>,
+    /// The message associated with the [`MessageReference`]. This is a minimal subset
+    /// of fields in a message (e.g. author is excluded.).
+    #[serde(default, skip_serializing_if = "Vec::is_empty")]
+    pub message_snapshots: Vec<MessageSnapshot>,
     /// Whether the message is pinned.
     pub pinned: bool,
+    /// The poll associated with the message.
+    #[serde(skip_serializing_if = "Option::is_none")]
+    pub poll: Option<Poll>,
     /// List of reactions to the message.
     #[serde(default, skip_serializing_if = "Vec::is_empty")]
     pub reactions: Vec<Reaction>,
@@ -197,9 +214,10 @@ pub struct Message {
 mod tests {
     use super::{
         reaction::ReactionCountDetails,
+        reference_type::MessageReferenceType,
         sticker::{MessageSticker, StickerFormatType},
-        Message, MessageActivity, MessageActivityType, MessageApplication, MessageFlags,
-        MessageReference, MessageType, Reaction, ReactionType,
+        EmojiReactionType, Message, MessageActivity, MessageActivityType, MessageApplication,
+        MessageCall, MessageFlags, MessageReference, MessageType, Reaction,
     };
     use crate::{
         channel::{ChannelMention, ChannelType},
@@ -228,6 +246,7 @@ mod tests {
                 accent_color: None,
                 avatar: Some(image_hash::AVATAR),
                 avatar_decoration: None,
+                avatar_decoration_data: None,
                 banner: None,
                 bot: false,
                 discriminator: 1,
@@ -243,6 +262,10 @@ mod tests {
                 system: None,
                 verified: None,
             },
+            call: Some(MessageCall {
+                ended_timestamp: None,
+                participants: Vec::new(),
+            }),
             channel_id: Id::new(2),
             components: Vec::new(),
             content: "ping".to_owned(),
@@ -270,7 +293,9 @@ mod tests {
             mention_everyone: false,
             mention_roles: Vec::new(),
             mentions: Vec::new(),
+            message_snapshots: Vec::new(),
             pinned: false,
+            poll: None,
             reactions: Vec::new(),
             reference: None,
             role_subscription_data: None,
@@ -291,7 +316,7 @@ mod tests {
             &[
                 Token::Struct {
                     name: "Message",
-                    len: 18,
+                    len: 19,
                 },
                 Token::Str("attachments"),
                 Token::Seq { len: Some(0) },
@@ -299,7 +324,7 @@ mod tests {
                 Token::Str("author"),
                 Token::Struct {
                     name: "User",
-                    len: 9,
+                    len: 10,
                 },
                 Token::Str("accent_color"),
                 Token::None,
@@ -307,6 +332,8 @@ mod tests {
                 Token::Some,
                 Token::Str(image_hash::AVATAR_INPUT),
                 Token::Str("avatar_decoration"),
+                Token::None,
+                Token::Str("avatar_decoration_data"),
                 Token::None,
                 Token::Str("banner"),
                 Token::None,
@@ -322,6 +349,18 @@ mod tests {
                 Token::Str("3"),
                 Token::Str("username"),
                 Token::Str("test"),
+                Token::StructEnd,
+                Token::Str("call"),
+                Token::Some,
+                Token::Struct {
+                    name: "MessageCall",
+                    len: 2,
+                },
+                Token::Str("ended_timestamp"),
+                Token::None,
+                Token::Str("participants"),
+                Token::Seq { len: Some(0) },
+                Token::SeqEnd,
                 Token::StructEnd,
                 Token::Str("channel_id"),
                 Token::NewtypeStruct { name: "Id" },
@@ -431,6 +470,7 @@ mod tests {
                 accent_color: None,
                 avatar: Some(image_hash::AVATAR),
                 avatar_decoration: None,
+                avatar_decoration_data: None,
                 banner: None,
                 bot: false,
                 discriminator: 1,
@@ -446,6 +486,7 @@ mod tests {
                 system: None,
                 verified: None,
             },
+            call: None,
             channel_id: Id::new(2),
             components: Vec::new(),
             content: "ping".to_owned(),
@@ -478,7 +519,9 @@ mod tests {
             mention_everyone: false,
             mention_roles: Vec::new(),
             mentions: Vec::new(),
+            message_snapshots: Vec::new(),
             pinned: false,
+            poll: None,
             reactions: vec![Reaction {
                 burst_colors: Vec::new(),
                 count: 7,
@@ -486,7 +529,7 @@ mod tests {
                     burst: 0,
                     normal: 7,
                 },
-                emoji: ReactionType::Unicode {
+                emoji: EmojiReactionType::Unicode {
                     name: "a".to_owned(),
                 },
                 me: true,
@@ -495,6 +538,7 @@ mod tests {
             reference: Some(MessageReference {
                 channel_id: Some(Id::new(1)),
                 guild_id: None,
+                kind: MessageReferenceType::Default,
                 message_id: None,
                 fail_if_not_exists: None,
             }),
@@ -516,7 +560,7 @@ mod tests {
             &[
                 Token::Struct {
                     name: "Message",
-                    len: 25,
+                    len: 26,
                 },
                 Token::Str("activity"),
                 Token::Some,
@@ -557,7 +601,7 @@ mod tests {
                 Token::Str("author"),
                 Token::Struct {
                     name: "User",
-                    len: 9,
+                    len: 10,
                 },
                 Token::Str("accent_color"),
                 Token::None,
@@ -565,6 +609,8 @@ mod tests {
                 Token::Some,
                 Token::Str(image_hash::AVATAR_INPUT),
                 Token::Str("avatar_decoration"),
+                Token::None,
+                Token::Str("avatar_decoration_data"),
                 Token::None,
                 Token::Str("banner"),
                 Token::None,
@@ -581,6 +627,8 @@ mod tests {
                 Token::Str("username"),
                 Token::Str("test"),
                 Token::StructEnd,
+                Token::Str("call"),
+                Token::None,
                 Token::Str("channel_id"),
                 Token::NewtypeStruct { name: "Id" },
                 Token::Str("2"),
@@ -681,7 +729,7 @@ mod tests {
                 Token::StructEnd,
                 Token::Str("emoji"),
                 Token::Struct {
-                    name: "ReactionType",
+                    name: "EmojiReactionType",
                     len: 1,
                 },
                 Token::Str("name"),
@@ -697,12 +745,14 @@ mod tests {
                 Token::Some,
                 Token::Struct {
                     name: "MessageReference",
-                    len: 1,
+                    len: 2,
                 },
                 Token::Str("channel_id"),
                 Token::Some,
                 Token::NewtypeStruct { name: "Id" },
                 Token::Str("1"),
+                Token::Str("type"),
+                Token::U8(0),
                 Token::StructEnd,
                 Token::Str("sticker_items"),
                 Token::Seq { len: Some(1) },

@@ -6,8 +6,8 @@ use twilight_model::{
     channel::{
         message::{
             sticker::MessageSticker, Component, Embed, Message, MessageActivity,
-            MessageApplication, MessageFlags, MessageInteraction, MessageReference, MessageType,
-            Reaction, RoleSubscriptionData,
+            MessageApplication, MessageCall, MessageFlags, MessageInteraction, MessageReference,
+            MessageSnapshot, MessageType, Reaction, RoleSubscriptionData,
         },
         Attachment, ChannelMention,
     },
@@ -20,6 +20,7 @@ use twilight_model::{
         },
         Id,
     },
+    poll::Poll,
     util::Timestamp,
 };
 
@@ -98,6 +99,7 @@ pub struct CachedMessage {
     application_id: Option<Id<ApplicationMarker>>,
     pub(crate) attachments: Vec<Attachment>,
     author: Id<UserMarker>,
+    pub(crate) call: Option<MessageCall>,
     channel_id: Id<ChannelMarker>,
     components: Vec<Component>,
     pub(crate) content: String,
@@ -113,7 +115,9 @@ pub struct CachedMessage {
     pub(crate) mention_everyone: bool,
     pub(crate) mention_roles: Vec<Id<RoleMarker>>,
     pub(crate) mentions: Vec<Id<UserMarker>>,
+    pub(crate) message_snapshots: Vec<MessageSnapshot>,
     pub(crate) pinned: bool,
+    pub(crate) poll: Option<Poll>,
     pub(crate) reactions: Vec<Reaction>,
     reference: Option<MessageReference>,
     role_subscription_data: Option<RoleSubscriptionData>,
@@ -304,6 +308,7 @@ impl From<Message> for CachedMessage {
             application_id,
             attachments,
             author,
+            call,
             channel_id,
             components,
             content,
@@ -319,7 +324,9 @@ impl From<Message> for CachedMessage {
             mention_everyone,
             mention_roles,
             mentions,
+            message_snapshots,
             pinned,
+            poll,
             reactions,
             reference,
             referenced_message: _,
@@ -338,6 +345,7 @@ impl From<Message> for CachedMessage {
             application_id,
             attachments,
             author: author.id,
+            call,
             channel_id,
             components,
             content,
@@ -352,7 +360,9 @@ impl From<Message> for CachedMessage {
             mention_everyone,
             mention_roles,
             mentions: mentions.into_iter().map(|mention| mention.id).collect(),
+            message_snapshots,
             pinned,
+            poll,
             reactions,
             reference,
             role_subscription_data,
@@ -373,6 +383,7 @@ impl PartialEq<Message> for CachedMessage {
             && self.application_id == other.application_id
             && self.attachments == other.attachments
             && self.author == other.author.id
+            && self.call == other.call
             && self.channel_id == other.channel_id
             && self.components == other.components
             && self.content == other.content

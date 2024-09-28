@@ -4,7 +4,7 @@ use crate::{
     CacheableModels, InMemoryCache, UpdateCache,
 };
 use twilight_model::{
-    channel::message::{Reaction, ReactionCountDetails, ReactionType},
+    channel::message::{EmojiReactionType, Reaction, ReactionCountDetails},
     gateway::payload::incoming::{
         ReactionAdd, ReactionRemove, ReactionRemoveAll, ReactionRemoveEmoji,
     },
@@ -39,8 +39,7 @@ impl<CacheModels: CacheableModels> UpdateCache<CacheModels> for ReactionAdd {
         } else {
             let me = cache
                 .current_user()
-                .map(|user| user.id() == self.0.user_id)
-                .unwrap_or_default();
+                .is_some_and(|user| user.id() == self.0.user_id);
 
             message.add_reaction(Reaction {
                 burst_colors: Vec::new(),
@@ -124,14 +123,16 @@ impl<CacheModels: CacheableModels> UpdateCache<CacheModels> for ReactionRemoveEm
     }
 }
 
-fn reactions_eq(a: &ReactionType, b: &ReactionType) -> bool {
+fn reactions_eq(a: &EmojiReactionType, b: &EmojiReactionType) -> bool {
     match (a, b) {
-        (ReactionType::Custom { id: id_a, .. }, ReactionType::Custom { id: id_b, .. }) => {
-            id_a == id_b
-        }
-        (ReactionType::Unicode { name: name_a }, ReactionType::Unicode { name: name_b }) => {
-            name_a == name_b
-        }
+        (
+            EmojiReactionType::Custom { id: id_a, .. },
+            EmojiReactionType::Custom { id: id_b, .. },
+        ) => id_a == id_b,
+        (
+            EmojiReactionType::Unicode { name: name_a },
+            EmojiReactionType::Unicode { name: name_b },
+        ) => name_a == name_b,
         _ => false,
     }
 }
@@ -141,7 +142,7 @@ mod tests {
     use super::reactions_eq;
     use crate::{model::CachedMessage, test};
     use twilight_model::{
-        channel::message::{Reaction, ReactionType},
+        channel::message::{EmojiReactionType, Reaction},
         gateway::{
             payload::incoming::{ReactionRemove, ReactionRemoveAll, ReactionRemoveEmoji},
             GatewayReaction,
@@ -153,7 +154,7 @@ mod tests {
         msg.reactions.iter().find(|&r| {
             reactions_eq(
                 &r.emoji,
-                &ReactionType::Custom {
+                &EmojiReactionType::Custom {
                     animated: false,
                     id: Id::new(6),
                     name: None,
@@ -172,11 +173,11 @@ mod tests {
         let world_react = msg
             .reactions
             .iter()
-            .find(|&r| matches!(&r.emoji, ReactionType::Unicode {name} if name == "🗺️"));
+            .find(|&r| matches!(&r.emoji, EmojiReactionType::Unicode {name} if name == "🗺️"));
         let smiley_react = msg
             .reactions
             .iter()
-            .find(|&r| matches!(&r.emoji, ReactionType::Unicode {name} if name == "😀"));
+            .find(|&r| matches!(&r.emoji, EmojiReactionType::Unicode {name} if name == "😀"));
         let custom_react = find_custom_react(&msg);
 
         assert!(world_react.is_some());
@@ -191,8 +192,10 @@ mod tests {
     fn reaction_remove() {
         let cache = test::cache_with_message_and_reactions();
         cache.update(&ReactionRemove(GatewayReaction {
+            burst: false,
+            burst_colors: Vec::new(),
             channel_id: Id::new(2),
-            emoji: ReactionType::Unicode {
+            emoji: EmojiReactionType::Unicode {
                 name: "😀".to_owned(),
             },
             guild_id: Some(Id::new(1)),
@@ -202,8 +205,10 @@ mod tests {
             user_id: Id::new(5),
         }));
         cache.update(&ReactionRemove(GatewayReaction {
+            burst: false,
+            burst_colors: Vec::new(),
             channel_id: Id::new(2),
-            emoji: ReactionType::Custom {
+            emoji: EmojiReactionType::Custom {
                 animated: false,
                 id: Id::new(6),
                 name: None,
@@ -222,11 +227,11 @@ mod tests {
         let world_react = msg
             .reactions
             .iter()
-            .find(|&r| matches!(&r.emoji, ReactionType::Unicode {name} if name == "🗺️"));
+            .find(|&r| matches!(&r.emoji, EmojiReactionType::Unicode {name} if name == "🗺️"));
         let smiley_react = msg
             .reactions
             .iter()
-            .find(|&r| matches!(&r.emoji, ReactionType::Unicode {name} if name == "😀"));
+            .find(|&r| matches!(&r.emoji, EmojiReactionType::Unicode {name} if name == "😀"));
         let custom_react = find_custom_react(&msg);
 
         assert!(world_react.is_some());
@@ -255,7 +260,7 @@ mod tests {
         let cache = test::cache_with_message_and_reactions();
         cache.update(&ReactionRemoveEmoji {
             channel_id: Id::new(2),
-            emoji: ReactionType::Unicode {
+            emoji: EmojiReactionType::Unicode {
                 name: "😀".to_owned(),
             },
             guild_id: Id::new(1),
@@ -263,7 +268,7 @@ mod tests {
         });
         cache.update(&ReactionRemoveEmoji {
             channel_id: Id::new(2),
-            emoji: ReactionType::Custom {
+            emoji: EmojiReactionType::Custom {
                 animated: false,
                 id: Id::new(6),
                 name: None,
@@ -279,11 +284,11 @@ mod tests {
         let world_react = msg
             .reactions
             .iter()
-            .find(|&r| matches!(&r.emoji, ReactionType::Unicode {name} if name == "🗺️"));
+            .find(|&r| matches!(&r.emoji, EmojiReactionType::Unicode {name} if name == "🗺️"));
         let smiley_react = msg
             .reactions
             .iter()
-            .find(|&r| matches!(&r.emoji, ReactionType::Unicode {name} if name == "😀"));
+            .find(|&r| matches!(&r.emoji, EmojiReactionType::Unicode {name} if name == "😀"));
         let custom_react = find_custom_react(&msg);
 
         assert!(world_react.is_some());
