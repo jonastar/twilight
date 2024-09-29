@@ -66,7 +66,8 @@ pub struct Interaction {
     /// [`Ping`]: InteractionType::Ping
     #[serde(skip_serializing_if = "Option::is_none")]
     #[deprecated(
-        note = "channel_id is deprecated in the discord API and will no be sent in the future, users should use the channel field instead."
+        note = "channel_id is deprecated in the discord API and will no be sent in the future, \
+                users should use the channel field instead."
     )]
     pub channel_id: Option<Id<ChannelMarker>>,
     /// Data from the interaction.
@@ -387,8 +388,6 @@ impl<'de> Visitor<'de> for InteractionVisitor {
                 Some(InteractionData::ModalSubmit(data))
             }
         };
-
-        let entitlements = entitlements.unwrap_or_default();
 
         Ok(Self::Value {
             app_permissions,
