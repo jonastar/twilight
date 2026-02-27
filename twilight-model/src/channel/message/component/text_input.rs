@@ -10,7 +10,8 @@ pub struct TextInput {
     /// Optional id for the text input.
     pub id: Option<i32>,
     /// Text appearing over the input field.
-    #[deprecated = "Deprecated by Discord in favor of label and description on the Label component."]
+    #[deprecated = "Deprecated by Discord in favor of label and description on the Label \
+                    component."]
     pub label: Option<String>,
     /// The maximum length of the text.
     pub max_length: Option<u16>,
@@ -32,7 +33,6 @@ pub struct TextInput {
 
 /// Style of an [`TextInput`].
 #[derive(Clone, Copy, Debug, Deserialize_repr, Eq, Hash, PartialEq, Serialize_repr)]
-#[non_exhaustive]
 #[repr(u8)]
 pub enum TextInputStyle {
     /// Intended for short single-line text.

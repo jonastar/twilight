@@ -8,7 +8,6 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 /// [`AuditLogChange`]: super::AuditLogChange
 /// [1]: https://discord.com/developers/docs/resources/audit-log#audit-log-change-object-audit-log-change-key
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, Ord, PartialEq, PartialOrd, Serialize)]
-#[non_exhaustive]
 #[serde(rename_all = "snake_case")]
 pub enum AuditLogChangeKey {
     /// AFK voice channel for a guild.

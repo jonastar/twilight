@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 
 /// The type of an onboarding prompt.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(from = "u8", into = "u8")]
 pub enum OnboardingPromptType {
     /// A prompt that allows the user to select multiple options.

@@ -2,7 +2,6 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// Voice gateway close event codes.
 #[derive(Clone, Copy, Debug, Deserialize_repr, Eq, Hash, PartialEq, Serialize_repr)]
-#[non_exhaustive]
 #[repr(u16)]
 pub enum CloseCode {
     /// An invalid opcode was sent.

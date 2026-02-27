@@ -10,7 +10,6 @@ use std::{
 ///
 /// [Discord Docs/Gateway Close Event Codes]: https://discord.com/developers/docs/topics/opcodes-and-status-codes#gateway-gateway-close-event-codes
 #[derive(Clone, Copy, Debug, Deserialize_repr, Eq, Hash, PartialEq, Serialize_repr)]
-#[non_exhaustive]
 #[repr(u16)]
 pub enum CloseCode {
     /// An unknown error occurred.

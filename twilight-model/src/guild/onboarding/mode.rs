@@ -4,7 +4,6 @@ use serde::{Deserialize, Serialize};
 
 /// Defines the criteria used to satisfy Onboarding constraints that are required for enabling.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(from = "u8", into = "u8")]
 pub enum OnboardingMode {
     /// Counts only Default Channels towards constraints

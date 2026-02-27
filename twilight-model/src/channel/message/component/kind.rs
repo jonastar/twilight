@@ -5,7 +5,6 @@ use std::fmt::{Display, Formatter, Result as FmtResult};
 ///
 /// [`Component`]: super::Component
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(from = "u8", into = "u8")]
 pub enum ComponentType {
     /// Component is an [`ActionRow`].

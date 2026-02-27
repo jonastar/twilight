@@ -31,7 +31,6 @@ pub enum TrackOption {
 
 /// An outgoing event to send to Lavalink.
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(untagged)]
 pub enum OutgoingEvent {
     /// Destroy a player for a guild.
@@ -149,7 +148,6 @@ impl From<Id<GuildMarker>> for Destroy {
 
 /// Filters to pass to the update player endpoint.
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub enum Filters {
     /// Adjusts 15 different bands

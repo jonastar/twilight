@@ -45,7 +45,6 @@ pub struct AllowedMentions {
 
 /// Allowed mention type.
 #[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(rename_all = "lowercase")]
 pub enum MentionType {
     /// `@everyone` and `@here` mentions.

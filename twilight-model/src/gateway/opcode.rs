@@ -2,7 +2,6 @@ use serde_repr::{Deserialize_repr, Serialize_repr};
 
 /// Gateway event's payload type.
 #[derive(Clone, Copy, Debug, Deserialize_repr, Eq, Hash, PartialEq, Serialize_repr)]
-#[non_exhaustive]
 #[repr(u8)]
 pub enum OpCode {
     /// [`DispatchEvent`] and sequence number.

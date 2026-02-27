@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 
 // Keep in sync with `twilight-validate::command`!
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(from = "u8", into = "u8")]
 pub enum CommandType {
     /// Slash command.

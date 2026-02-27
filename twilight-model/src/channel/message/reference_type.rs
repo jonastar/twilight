@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 
 /// The type of reference for a message.
 #[derive(Clone, Copy, Debug, Default, Deserialize, Eq, Hash, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(from = "u8", into = "u8")]
 pub enum MessageReferenceType {
     /// A standard reference used by replies.

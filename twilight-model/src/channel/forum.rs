@@ -24,7 +24,6 @@ pub struct DefaultReaction {
 /// [channel]: super::Channel
 /// [forum]: super::ChannelType::GuildForum
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(from = "u8", into = "u8")]
 pub enum ForumLayout {
     /// Display posts as a collection of tiles.
@@ -75,7 +74,6 @@ impl From<ForumLayout> for u8 {
 /// [channel]: super::Channel
 /// [forum]: super::ChannelType::GuildForum
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(from = "u8", into = "u8")]
 pub enum ForumSortOrder {
     /// Sort forum posts by creation time (from most recent to oldest).

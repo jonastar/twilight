@@ -318,7 +318,6 @@ impl CommandOptionValue {
 
 /// Type of a [`CommandOption`].
 #[derive(Clone, Copy, Debug, Deserialize_repr, Eq, Hash, PartialEq, Serialize_repr)]
-#[non_exhaustive]
 #[repr(u8)]
 pub enum CommandOptionType {
     SubCommand = 1,

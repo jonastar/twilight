@@ -35,7 +35,6 @@ where
 
 /// The return type of the data in the search result from Lavalink.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub enum LoadResultName {
     /// There have been no matches for the identifier.
@@ -52,7 +51,6 @@ pub enum LoadResultName {
 
 /// The result return data from a search query to Lavalink.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(tag = "loadType", content = "data", rename_all = "camelCase")]
 pub enum LoadResultData {
     /// Empty data response.
@@ -124,7 +122,6 @@ pub struct IpBlock {
 
 /// The type of route planner in use.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(rename_all = "PascalCase")]
 pub enum RoutePlannerType {
     /// A Nano IP route planner.
@@ -137,7 +134,6 @@ pub enum RoutePlannerType {
 
 /// The route planner in use.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(untagged)]
 pub enum RoutePlanner {
     /// Information about a Nano IP route planner.

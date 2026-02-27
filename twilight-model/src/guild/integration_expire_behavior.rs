@@ -2,7 +2,6 @@ use serde::{Deserialize, Serialize};
 
 /// Behavior to perform when the user's integration expires.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(from = "u8", into = "u8")]
 pub enum IntegrationExpireBehavior {
     /// Remove the role when the integration expires.

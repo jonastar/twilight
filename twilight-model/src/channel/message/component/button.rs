@@ -41,7 +41,6 @@ pub struct Button {
 /// Style of a [`Button`].
 // Keep in sync with `twilight-validate::component`!
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(from = "u8", into = "u8")]
 pub enum ButtonStyle {
     /// Button indicates a primary action.

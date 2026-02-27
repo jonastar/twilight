@@ -13,7 +13,6 @@ pub struct MessageActivity {
 
 /// Activity of this message.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(from = "u8", into = "u8")]
 pub enum MessageActivityType {
     /// Join the the party.

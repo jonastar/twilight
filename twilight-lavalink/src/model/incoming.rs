@@ -2,7 +2,6 @@
 
 /// The type of event that is coming in from a Lavalink message.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub enum Opcode {
     /// Meta information about a track starting or ending.
@@ -20,7 +19,6 @@ use twilight_model::id::{Id, marker::GuildMarker};
 
 /// The levels of severity that an exception can have.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub enum Severity {
     /// The cause is known and expected, indicates that there is nothing wrong
@@ -286,7 +284,6 @@ pub enum EventType {
 
 /// The data of the server event that was dispatched when event triggers.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(untagged)]
 pub enum EventData {
     /// Dispatched when a track ends.
@@ -303,7 +300,6 @@ pub enum EventData {
 
 /// The reason for the track ending.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(rename_all = "camelCase")]
 pub enum TrackEndReason {
     /// The track was cleaned up.

@@ -49,7 +49,6 @@ pub enum AuditLogChangeTypeValue {
 ///
 /// [`AuditLogEntry`]: super::AuditLogEntry
 #[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(rename_all = "snake_case", tag = "key")]
 pub enum AuditLogChange {
     /// AFK channel ID was changed.

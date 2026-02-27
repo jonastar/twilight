@@ -9,7 +9,6 @@ use serde::{Deserialize, Serialize};
 ///
 /// [Discord Docs/Guild Features]: https://discord.com/developers/docs/resources/guild#guild-object-guild-features
 #[derive(Clone, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(from = "String", into = "Cow<'static, str>")]
 pub enum GuildFeature {
     /// Has access to set an animated guild banner image.

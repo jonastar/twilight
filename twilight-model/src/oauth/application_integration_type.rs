@@ -3,7 +3,6 @@ use serde::{Deserialize, Serialize};
 use super::InstallParams;
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(from = "u8", into = "u8")]
 pub enum ApplicationIntegrationType {
     GuildInstall,

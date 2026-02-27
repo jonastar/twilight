@@ -1,7 +1,6 @@
 use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Copy, Debug, Deserialize, Eq, Hash, PartialEq, Serialize)]
-#[non_exhaustive]
 #[serde(from = "u8", into = "u8")]
 pub enum VideoQualityMode {
     /// Discord chooses the quality for optimal performance.
