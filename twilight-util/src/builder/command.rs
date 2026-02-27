@@ -45,15 +45,19 @@
 //! ```
 
 use twilight_model::{
-    application::command::{
-        Command, CommandOption, CommandOptionChoice, CommandOptionChoiceValue, CommandOptionType,
-        CommandOptionValue, CommandType,
+    application::{
+        command::{
+            Command, CommandOption, CommandOptionChoice, CommandOptionChoiceValue,
+            CommandOptionType, CommandType,
+        },
+        interaction::InteractionContextType,
     },
     channel::ChannelType,
     guild::Permissions,
-    id::{marker::GuildMarker, Id},
+    id::{Id, marker::GuildMarker},
+    oauth::ApplicationIntegrationType,
 };
-use twilight_validate::command::{command as validate_command, CommandValidationError};
+use twilight_validate::command::{CommandValidationError, command as validate_command};
 
 /// Builder to create a [`Command`].
 #[derive(Clone, Debug)]
@@ -63,6 +67,7 @@ pub struct CommandBuilder(Command);
 impl CommandBuilder {
     /// Create a new default [`Command`] builder.
     #[must_use = "builders have no effect if unused"]
+    #[allow(deprecated)]
     pub fn new(name: impl Into<String>, description: impl Into<String>, kind: CommandType) -> Self {
         Self(Command {
             application_id: None,
@@ -78,6 +83,8 @@ impl CommandBuilder {
             nsfw: None,
             options: Vec::new(),
             version: Id::new(1),
+            contexts: None,
+            integration_types: None,
         })
     }
 
@@ -109,6 +116,15 @@ impl CommandBuilder {
         self
     }
 
+    /// Set the contexts of the command.
+    ///
+    /// Defaults to nothing.
+    pub fn contexts(mut self, contexts: impl IntoIterator<Item = InteractionContextType>) -> Self {
+        self.0.contexts = Some(contexts.into_iter().collect());
+
+        self
+    }
+
     /// Set the default member permission required to run the command.
     ///
     /// Defaults to [`None`].
@@ -124,6 +140,8 @@ impl CommandBuilder {
     /// Set whether the command is available in DMs.
     ///
     /// Defaults to [`None`].
+    #[deprecated(note = "use contexts instead")]
+    #[allow(deprecated)]
     pub const fn dm_permission(mut self, dm_permission: bool) -> Self {
         self.0.dm_permission = Some(dm_permission);
 
@@ -143,6 +161,18 @@ impl CommandBuilder {
                 .map(|(a, b)| (a.into(), b.into()))
                 .collect(),
         );
+
+        self
+    }
+
+    /// Set the integration types for the command.
+    ///
+    /// Defaults to `None`.
+    pub fn integration_types(
+        mut self,
+        integration_types: impl IntoIterator<Item = ApplicationIntegrationType>,
+    ) -> Self {
+        self.0.integration_types = Some(integration_types.into_iter().collect());
 
         self
     }
@@ -540,7 +570,7 @@ impl IntegerBuilder {
                 .map(|(name, value, ..)| CommandOptionChoice {
                     name: name.into(),
                     name_localizations: None,
-                    value: CommandOptionChoiceValue::Integer(value),
+                    value: value.into(),
                 })
                 .collect(),
         );
@@ -568,8 +598,8 @@ impl IntegerBuilder {
     /// Set the maximum allowed value.
     ///
     /// Defaults to no limit.
-    pub const fn max_value(mut self, value: i64) -> Self {
-        self.0.max_value = Some(CommandOptionValue::Integer(value));
+    pub fn max_value(mut self, value: i64) -> Self {
+        self.0.max_value = Some(value.into());
 
         self
     }
@@ -577,8 +607,8 @@ impl IntegerBuilder {
     /// Set the minimum allowed value.
     ///
     /// Defaults to no limit.
-    pub const fn min_value(mut self, value: i64) -> Self {
-        self.0.min_value = Some(CommandOptionValue::Integer(value));
+    pub fn min_value(mut self, value: i64) -> Self {
+        self.0.min_value = Some(value.into());
 
         self
     }
@@ -793,7 +823,7 @@ impl NumberBuilder {
                 .map(|(name, value, ..)| CommandOptionChoice {
                     name: name.into(),
                     name_localizations: None,
-                    value: CommandOptionChoiceValue::Number(value),
+                    value: value.into(),
                 })
                 .collect(),
         );
@@ -821,8 +851,8 @@ impl NumberBuilder {
     /// Set the maximum allowed value.
     ///
     /// Defaults to no limit.
-    pub const fn max_value(mut self, value: f64) -> Self {
-        self.0.max_value = Some(CommandOptionValue::Number(value));
+    pub fn max_value(mut self, value: f64) -> Self {
+        self.0.max_value = Some(value.into());
 
         self
     }
@@ -830,8 +860,8 @@ impl NumberBuilder {
     /// Set the minimum allowed value.
     ///
     /// Defaults to no limit.
-    pub const fn min_value(mut self, value: f64) -> Self {
-        self.0.min_value = Some(CommandOptionValue::Number(value));
+    pub fn min_value(mut self, value: f64) -> Self {
+        self.0.min_value = Some(value.into());
 
         self
     }
@@ -1049,7 +1079,7 @@ impl StringBuilder {
                 .map(|(name, value, ..)| CommandOptionChoice {
                     name: name.into(),
                     name_localizations: None,
-                    value: CommandOptionChoiceValue::String(value.into()),
+                    value: CommandOptionChoiceValue::from(value.into()),
                 })
                 .collect(),
         );
@@ -1404,7 +1434,7 @@ mod tests {
     assert_impl_all!(UserBuilder: Clone, Debug, Send, Sync);
 
     #[test]
-    #[allow(clippy::too_many_lines)]
+    #[allow(clippy::too_many_lines, deprecated)]
     fn construct_command_with_builder() {
         let command =
             CommandBuilder::new(
@@ -1455,16 +1485,18 @@ mod tests {
 
         let command_manual = Command {
             application_id: None,
+            contexts: None,
             default_member_permissions: None,
             dm_permission: None,
             description: String::from("Get or edit permissions for a user or a role"),
+            description_localizations: None,
             guild_id: None,
             id: None,
+            integration_types: None,
             kind: CommandType::ChatInput,
             name: String::from("permissions"),
             name_localizations: None,
             nsfw: Some(true),
-            description_localizations: None,
             options: Vec::from([
                 CommandOption {
                     autocomplete: None,
