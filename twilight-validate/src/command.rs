@@ -189,7 +189,10 @@ impl Display for CommandValidationError {
                 Display::fmt(&OPTION_NAME_LENGTH_MAX, f)
             }
             CommandValidationErrorType::OptionNameCharacterInvalid { character } => {
-                f.write_str("command option name must only contain lowercase alphanumeric characters, found `")?;
+                f.write_str(
+                    "command option name must only contain lowercase alphanumeric characters, \
+                     found `",
+                )?;
                 Display::fmt(character, f)?;
 
                 f.write_str("`")
@@ -233,7 +236,6 @@ impl Error for CommandValidationError {}
 
 /// Type of [`CommandValidationError`] that occurred.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum CommandValidationErrorType {
     /// Too many commands have been provided.
     ///

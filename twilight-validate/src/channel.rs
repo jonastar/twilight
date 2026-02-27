@@ -121,7 +121,6 @@ impl Error for ChannelValidationError {}
 
 /// Type of [`ChannelValidationError`] that occurred.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum ChannelValidationErrorType {
     /// The bitrate is less than 8000.
     BitrateInvalid,

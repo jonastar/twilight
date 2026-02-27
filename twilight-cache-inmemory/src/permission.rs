@@ -151,7 +151,6 @@ impl Error for ChannelError {}
 
 /// Type of [`ChannelError`] that occurred.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum ChannelErrorType {
     /// Channel is not in a guild.
     ///
@@ -258,7 +257,6 @@ impl Error for RootError {}
 
 /// Type of [`RootError`] that occurred.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum RootErrorType {
     /// The user's member information is not available in the guild.
     ///

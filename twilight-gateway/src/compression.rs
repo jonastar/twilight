@@ -89,7 +89,6 @@ impl Error for CompressionError {
 
 /// Type of [`CompressionError`] that occurred.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum CompressionErrorType {
     /// Decompressing a frame failed.
     Decompressing,

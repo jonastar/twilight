@@ -11,7 +11,6 @@ use twilight_model::id::{
 };
 
 #[derive(Clone, Debug, Eq, Hash, PartialEq)]
-#[non_exhaustive]
 pub enum Route<'a> {
     /// Route information to add an emoji to an application.
     AddApplicationEmoji {
@@ -3820,7 +3819,8 @@ mod tests {
 
         assert_eq!(
             route.to_string(),
-            "applications/1/entitlements?after=32&before=2&exclude_ended=true&guild_id=42&limit=99&sku_ids=7&user_id=11"
+            "applications/1/entitlements?after=32&before=2&exclude_ended=true&guild_id=42&\
+             limit=99&sku_ids=7&user_id=11"
         );
     }
 
@@ -4447,7 +4447,8 @@ mod tests {
         assert_eq!(
             route.to_string(),
             format!(
-                "guilds/{GUILD_ID}/scheduled-events/{SCHEDULED_EVENT_ID}/users?before={USER_ID}&with_member=true"
+                "guilds/{GUILD_ID}/scheduled-events/{SCHEDULED_EVENT_ID}/users?before={USER_ID}&\
+                 with_member=true"
             )
         );
 
@@ -4463,7 +4464,8 @@ mod tests {
         assert_eq!(
             route.to_string(),
             format!(
-                "guilds/{GUILD_ID}/scheduled-events/{SCHEDULED_EVENT_ID}/users?after={USER_ID}&limit=101"
+                "guilds/{GUILD_ID}/scheduled-events/{SCHEDULED_EVENT_ID}/users?after={USER_ID}&\
+                 limit=101"
             )
         );
 
@@ -4479,7 +4481,8 @@ mod tests {
         assert_eq!(
             route.to_string(),
             format!(
-                "guilds/{GUILD_ID}/scheduled-events/{SCHEDULED_EVENT_ID}/users?after={USER_ID}&before={USER_ID}&limit=99"
+                "guilds/{GUILD_ID}/scheduled-events/{SCHEDULED_EVENT_ID}/users?after={USER_ID}&\
+                 before={USER_ID}&limit=99"
             )
         );
     }

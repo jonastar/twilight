@@ -116,7 +116,6 @@ impl Error for NodeError {
 
 /// Type of [`NodeError`] that occurred.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum NodeErrorType {
     /// Building the HTTP request to initialize a connection failed.
     BuildingConnectionRequest,
@@ -185,7 +184,6 @@ impl Error for NodeSenderError {
 
 /// Type of [`NodeSenderError`] that occurred.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum NodeSenderErrorType {
     /// Error occurred while sending over the channel.
     Sending,

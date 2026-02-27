@@ -55,7 +55,6 @@ impl Error for ChannelError {
 
 /// Type of [`ChannelError`] that occurred.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum ChannelErrorType {
     /// Tried sending over a closed channel.
     Closed,
@@ -203,7 +202,6 @@ impl Error for ReceiveMessageError {
 
 /// Type of [`ReceiveMessageError`] that occurred.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum ReceiveMessageErrorType {
     /// Binary message could not be decompressed.
     ///

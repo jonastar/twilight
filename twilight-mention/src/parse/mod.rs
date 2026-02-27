@@ -134,7 +134,6 @@ use twilight_model::id::{
 /// assert!(iter.next().is_none());
 /// ```
 #[derive(Clone, Copy, Debug, Eq, PartialEq)]
-#[non_exhaustive]
 pub enum MentionType {
     /// Channel mention.
     Channel(Id<ChannelMarker>),

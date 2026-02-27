@@ -52,7 +52,6 @@ impl Error for ImageSourceAttachmentError {}
 
 /// Type of [`ImageSourceAttachmentError`] that occurred.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum ImageSourceAttachmentErrorType {
     /// An extension is present in the provided filename but it is empty.
     ExtensionEmpty,
@@ -106,7 +105,6 @@ impl Error for ImageSourceUrlError {}
 
 /// Type of [`ImageSourceUrlError`] that occurred.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum ImageSourceUrlErrorType {
     /// The Protocol of the URL is unsupported by the Discord REST API.
     ///

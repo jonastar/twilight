@@ -132,7 +132,6 @@ impl Error for DeserializeBodyError {
 
 /// Type of [`DeserializeBodyError`] that occurred.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum DeserializeBodyErrorType {
     /// Response body is not a UTF-8 valid string.
     BodyNotUtf8 {

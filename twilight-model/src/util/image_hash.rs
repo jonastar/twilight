@@ -96,7 +96,6 @@ impl Error for ImageHashParseError {}
 
 /// Type of [`ImageHashParseError`] that occurred.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum ImageHashParseErrorType {
     /// Input is either animated and not 34 characters long or is not animated
     /// and is not 32 characters long.

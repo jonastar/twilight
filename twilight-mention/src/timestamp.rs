@@ -74,7 +74,6 @@ impl Error for TimestampStyleConversionError {}
 
 /// Type of [`TimestampStyleConversionError`] that occurred.
 #[derive(Debug, Eq, PartialEq)]
-#[non_exhaustive]
 pub enum TimestampStyleConversionErrorType {
     /// Given value is not a valid style.
     StyleInvalid,

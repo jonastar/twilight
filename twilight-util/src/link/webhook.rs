@@ -60,7 +60,6 @@ impl Error for WebhookParseError {
 
 /// Type of [`WebhookParseError`] that occurred.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum WebhookParseErrorType {
     /// ID segment in the URL path is not an integer.
     IdInvalid,

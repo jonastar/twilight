@@ -35,7 +35,6 @@ const ACTOR_PANIC_MESSAGE: &str =
 ///
 /// [method]: https://developer.mozilla.org/en-US/docs/Web/HTTP/Methods
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-#[non_exhaustive]
 pub enum Method {
     /// Delete a resource.
     Delete,

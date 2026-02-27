@@ -12,7 +12,6 @@ pub struct RateLimited {
 }
 
 #[derive(Clone, Debug, Deserialize, PartialEq, Serialize)]
-#[non_exhaustive]
 pub enum RateLimitMetadata {
     RequestGuildMembers {
         guild_id: Id<GuildMarker>,

@@ -271,7 +271,6 @@ pub struct Event {
 /// The type of event being dispatched as a message from the server as the event
 /// triggers.
 #[derive(Clone, Copy, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[non_exhaustive]
 pub enum EventType {
     /// Dispatched when a track starts playing.
     TrackStartEvent,

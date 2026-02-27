@@ -494,7 +494,6 @@ impl Error for ComponentValidationError {}
 
 /// Type of [`ComponentValidationError`] that occurred.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum ComponentValidationErrorType {
     /// Number of components a provided [`ActionRow`] is larger than
     /// [the maximum][`ACTION_ROW_COMPONENT_COUNT`].

@@ -144,7 +144,6 @@ impl Error for EmbedValidationError {}
 
 /// Type of [`EmbedValidationError`] that occurred.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum EmbedValidationErrorType {
     /// Embed author's name is larger than [`AUTHOR_NAME_LENGTH`].
     AuthorNameTooLarge {

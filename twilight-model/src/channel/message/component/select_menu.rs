@@ -42,7 +42,6 @@ pub struct SelectMenu {
 
 /// A [`SelectMenu`]'s type.
 #[derive(Clone, Copy, Debug, Eq, Hash, PartialEq)]
-#[non_exhaustive]
 pub enum SelectMenuType {
     /// Channel select menus.
     Channel,

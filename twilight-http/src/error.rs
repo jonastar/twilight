@@ -97,7 +97,6 @@ impl StdError for Error {
 }
 
 /// Type of [`Error`] that occurred.
-#[non_exhaustive]
 pub enum ErrorType {
     BuildingRequest,
     CreatingHeader {

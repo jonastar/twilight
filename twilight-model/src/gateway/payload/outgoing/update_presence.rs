@@ -54,7 +54,6 @@ impl Error for UpdatePresenceError {}
 
 /// Type of [`UpdatePresenceError`] that occurred.
 #[derive(Debug)]
-#[non_exhaustive]
 pub enum UpdatePresenceErrorType {
     /// No activities provided.
     MissingActivity,

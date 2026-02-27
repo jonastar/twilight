@@ -131,7 +131,6 @@ impl Error for ParseMentionError<'_> {
 
 /// Type of [`ParseMentionError`] that occurred.
 #[derive(Debug, Eq, PartialEq)]
-#[non_exhaustive]
 pub enum ParseMentionErrorType<'a> {
     /// ID portion of the mention isn't a u64.
     IdNotU64 {

@@ -103,7 +103,6 @@ pub struct FailingAddress {
 
 /// The IP version in use by the block.
 #[derive(Clone, Debug, Deserialize, Eq, PartialEq, Serialize)]
-#[non_exhaustive]
 pub enum IpBlockType {
     /// An IPv4 block type.
     #[serde(rename = "Inet4Address")]
